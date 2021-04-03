@@ -1,0 +1,7 @@
+nfcp.nfcp:
+  path: 'admin/config/people/nfcp'
+  defaults:
+    _form: 'Drupal\nfcp\Form\NFCPForm'
+    _title: 'Node Fields Complete Percentage'
+  requirements:
+    _permission: 'Administer nfcp'

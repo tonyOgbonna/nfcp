@@ -1,0 +1,9 @@
+name: 'Node Fields Complete Percentage (NFCP)'
+type: module
+description: 'NFCP is used to show a node''s fields completion status'
+package: Other
+core: 8.x
+libraries:
+  - nfcp/nfcp-block
+core_version_requirement: '^8 || ^9'
+configure: nfcp

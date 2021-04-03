@@ -1,0 +1,46 @@
+{#
+/**
+ * @file
+ * Default theme implementation for cfcp block
+ *
+ * Available variables:
+ * - nid: Node ID.
+ * - total: Total number of fields in profile.
+ * - completed: How many fields the user has filled.
+ * - incomplete: The inverse of $completed, how many empty fields left.
+ * - next_percent: The percent if the user filled the next field.
+ * - nextfield_name: The name of the suggested next field to fill (machine name).
+ * - nextfield_title: The name of the suggested next field to fill (human readable name).
+ * - current_percent: From 0 to 100% of how much the profile is complete.
+ *
+ */
+#}
+{% spaceless %}
+<div class="cfcp-block">
+  <h4 class="cfcp-node-title"> {{ title }}</h4>
+  <style type="text/css">
+    .cfcp-percent-bar { width: 0{{ current_percent }}%; }
+  </style>
+
+  <div class="cfcp-wrapper cfcp-node">
+    {% trans %}
+    <span class="node-completed"> {{ current_percent }}% Complete</span>
+    {% endtrans %}
+    <div class="cfcp-percent-bar-wrapper">
+      <div class="cfcp-percent-bar user-node"></div>
+    </div>
+    <div class="cfcp-next-field">
+    {% if nextfield_title %}
+    {% trans %}
+      Filling out <em><a href="/node/{{ nid }}/edit#edit-{{ nextfield_name }}-wrapper" target={{ open_link }} >{{ nextfield_title }}</a></em> will bring this profile to {{ next_percent }}% complete
+    {% endtrans %}
+    {% endif %}
+    </div>
+    <div class="cfcp-node-author">
+    {% trans %}
+    <a href="/user/{{ uid }}" target={{ open_link }} >Author's profile</a>
+    {% endtrans %}
+    </div>
+  </div>
+</div>
+{% endspaceless %}

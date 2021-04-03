@@ -1,0 +1,14 @@
+.nfcp-percent-bar-wrapper {
+  width: 100%;
+  border: 1px solid #000;
+  padding: 1px;
+}
+.nfcp-percent-bar {
+  height: 10px;
+  background-color: #ffa60a;
+}
+.nfcp-block {
+  padding: 5px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #9a9a9a;
+}
