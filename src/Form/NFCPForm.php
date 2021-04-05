@@ -126,16 +126,12 @@ class NFCPForm extends ConfigFormBase {
       '#type' => 'select',
       '#title' => $this->t('Node type'),
       '#options' => $node_type_options,
-      '#default_value' => $config->get('node_type') ?: 'school',
+      '#default_value' => $config->get('node_type') ?: '',
       '#description' => $this->t('Select a node type to be used for completion percentage.'),
       '#recalculate' => TRUE,
       '#ajax' => [
-        'callback' => [get_class($this), 'nfcpNodetypeFieldsFormElement'],
+        'callback' => [$this, 'nfcpNodetypeFieldsFormElement'],
         'event' => 'change',
-        'progress' => [
-          'type' => 'throbber',
-          'message' => $this->t('Pls wait awhile...'),
-        ],
         'wrapper' => 'node-fields-select',
       ],
     ];
@@ -143,22 +139,25 @@ class NFCPForm extends ConfigFormBase {
     $form['node_field_setting'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('NODE FIELDS SETTINGS'),
+      '#attributes' => ['id' => 'node-fields-select'],
     ];
 
+    $form_state->setCached(FALSE);
     $fields = [];
     // $node_fields = [];
     $node_fields_labels = [];
 
     if ($node_type = $config->get('node_type')) {
-      $nids = $this->queryFactory->get($node_type, 'AND')->condition('type', $node_type)->execute();
-      if (count($nids) > 0) {
-        $node = $this->entityManagerWrapper->getStorage('node')->load(array_pop($nids));
+      // $nids = $this->queryFactory->get($node_type, 'AND')->condition('type', $node_type)->execute();
+      $nodes = $this->entityManagerWrapper->getStorage('node')->loadByProperties(['type' => $node_type]);
+      if (count($nodes) > 0) {
+        $node = array_pop($nodes);
         $fields = $this->entityFieldManagerWrapper->getFieldDefinitions('node', $node->bundle());
       }
 
       foreach ($fields as $field_name => $field_definition) {
         if (!empty($field_definition->getTargetBundle())) {
-          // $node_fields[$field_name] = $field_definition->getType();
+          // $node_fields[condition$field_name] = $field_definition->getType();
           $node_fields_labels[$field_name] = $field_definition->getLabel();
         }
       }
@@ -170,8 +169,6 @@ class NFCPForm extends ConfigFormBase {
       '#options' => $node_fields_labels,
       '#default_value' => $config->get('node_fields') ?: [],
       '#description' => $this->t('Checking a node field below will add that field to the logic of the complete percentage.'),
-      '#prefix' => '<div id="node-fields-select">',
-      '#suffix' => '</div>',
     ];
 
     return parent::buildForm($form, $form_state);
@@ -198,33 +195,34 @@ class NFCPForm extends ConfigFormBase {
   public function nfcpNodetypeFieldsFormElement(array &$form, FormStateInterface $form_state) {
     // Prepare our textfield. check if the example select
     // field has a selected option.
+    $node_fields_labels = [];
     if ($node_type = $form_state->getValue('node_type')) {
       $fields = [];
       // $node_fields = [];
-      $node_fields_labels = [];
-
-      $nids = $this->queryFactory->get($node_type, 'AND')->condition('type', $node_type)->execute();
-      if (count($nids) > 0) {
-        $node = $this->node->load(array_pop($nids));
+      $nodes = $this->entityManagerWrapper->getStorage('node')->loadByProperties(['type' => $node_type]);
+      if (count($nodes) > 0) {
+        $node = array_pop($nodes);
         $fields = $this->entityFieldManagerWrapper->getFieldDefinitions('node', $node->bundle());
       }
-
       foreach ($fields as $field_name => $field_definition) {
         if (!empty($field_definition->getTargetBundle())) {
-          // $node_fields[$field_name] = $field_definition->getType();
           $node_fields_labels[$field_name] = $field_definition->getLabel();
         }
       }
-
-      $form['node_fields'] = [
-        '#type' => 'checkboxes',
-        '#title' => 'Node Fields',
-        '#options' => $node_fields_labels,
-        '#default_value' => [],
-        '#description' => $this->t('X Checking a node field below will add that field to the logic of the complete percentage.'),
-      ];
     }
-    return $form['node_fields'];
+    $form['node_field_setting'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('NODE FIELDS SETTINGS'),
+      '#attributes' => ['id' => 'node-fields-select'],
+    ];
+    $form['node_field_setting']['node_fields'] = [
+      '#type' => 'checkboxes',
+      '#title' => 'Node Fields',
+      '#options' => $node_fields_labels,
+      '#default_value' => [],
+      '#description' => $this->t('X Checking a node field below will add that field to the logic of the complete percentage.'),
+    ];
+    return $form['node_field_setting'];
   }
 
   /**
